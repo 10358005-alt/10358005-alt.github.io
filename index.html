@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>我的個人首頁</title>
+    <style>
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", "Noto Sans TC", sans-serif;
+        background: linear-gradient(135deg, #0f172a, #1e293b);
+        color: #e2e8f0;
+        line-height: 1.7;
+      }
+      .container {
+        width: min(1100px, 90%);
+        margin: 0 auto;
+      }
+      header {
+        background: rgba(15, 23, 42, 0.8);
+        border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+        position: sticky;
+        top: 0;
+        backdrop-filter: blur(10px);
+      }
+      nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        min-height: 72px;
+      }
+      .logo {
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        color: #7dd3fc;
+      }
+      .nav-links {
+        display: flex;
+        gap: 24px;
+      }
+      .nav-links a {
+        color: #cbd5e1;
+        text-decoration: none;
+      }
+      .hero {
+        padding: 90px 0 50px;
+      }
+      .hero-box {
+        display: grid;
+        grid-template-columns: 1.3fr 0.7fr;
+        gap: 32px;
+        align-items: center;
+      }
+      .tag {
+        display: inline-block;
+        background: rgba(125, 211, 252, 0.15);
+        color: #bae6fd;
+        border: 1px solid rgba(125, 211, 252, 0.4);
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-size: 0.88rem;
+        margin-bottom: 18px;
+      }
+      h1 {
+        font-size: clamp(2.6rem, 5vw, 4.4rem);
+        line-height: 1.1;
+        margin: 0 0 16px;
+      }
+      .lead {
+        color: #cbd5e1;
+        font-size: 1.1rem;
+        max-width: 600px;
+      }
+      .buttons {
+        margin-top: 28px;
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .btn {
+        display: inline-block;
+        padding: 14px 24px;
+        border-radius: 999px;
+        text-decoration: none;
+        font-weight: 700;
+      }
+      .btn-primary {
+        background: linear-gradient(135deg, #38bdf8, #2563eb);
+        color: white;
+      }
+      .btn-secondary {
+        background: rgba(148, 163, 184, 0.1);
+        color: white;
+        border: 1px solid rgba(148, 163, 184, 0.3);
+      }
+      .profile-card {
+        background: rgba(15, 23, 42, 0.8);
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        border-radius: 24px;
+        padding: 28px;
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.4);
+      }
+      .avatar {
+        width: 140px;
+        height: 140px;
+        margin: 0 auto 18px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #38bdf8, #22c55e);
+        display: grid;
+        place-items: center;
+        font-size: 3rem;
+        font-weight: 800;
+        color: white;
+      }
+      .info {
+        text-align: center;
+      }
+      .info h3 {
+        margin: 0;
+        font-size: 1.8rem;
+      }
+      .info p {
+        color: #cbd5e1;
+        margin: 8px 0 0;
+      }
+      section {
+        padding: 40px 0 60px;
+      }
+      h2 {
+        font-size: clamp(2rem, 3vw, 2.8rem);
+        margin-bottom: 24px;
+      }
+      .about {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 28px;
+      }
+      .card {
+        background: rgba(15, 23, 42, 0.7);
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        border-radius: 18px;
+        padding: 28px;
+      }
+      .card p {
+        color: #cbd5e1;
+        margin: 0;
+      }
+      .skills {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 20px;
+      }
+      .skill {
+        background: rgba(15, 23, 42, 0.7);
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        border-radius: 18px;
+        padding: 22px;
+      }
+      .skill strong {
+        display: block;
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+      }
+      .skill span {
+        color: #cbd5e1;
+      }
+      footer {
+        padding: 26px 0 40px;
+        text-align: center;
+        color: #94a3b8;
+      }
+      @media (max-width: 760px) {
+        .hero-box,
+        .about,
+        .skills {
+          grid-template-columns: 1fr;
+        }
+        .nav-links {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="container nav">
+        <div class="logo">MY PORTFOLIO</div>
+        <div class="nav-links">
+          <a href="#about">關於我</a>
+          <a href="#skills">專長</a>
+          <a href="#contact">聯絡</a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="container hero-box">
+          <div>
+            <div class="tag">Hello, I'm a student</div>
+            <h1>我是一名成大南工的學生</h1>
+            <p class="lead">
+              大家好，我是成大南工的學生，平時喜歡學習新知識，尤其對程式設計有很強的興趣。
+              我熱愛寫程式，喜歡將想法轉成實際成果，並持續提升自己的技能。
+            </p>
+            <div class="buttons">
+              <a href="#about" class="btn btn-primary">了解更多</a>
+              <a href="#skills" class="btn btn-secondary">我的專長</a>
+            </div>
+          </div>
+
+          <div class="profile-card">
+            <div class="avatar">我</div>
+            <div class="info">
+              <h3>成大南工學生</h3>
+              <p>熱愛程式設計與科技學習</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="about">
+        <div class="container">
+          <h2>關於我</h2>
+          <div class="about">
+            <div class="card">
+              <p>
+                我是一位來自成大南工的學生，平時除了學習專業知識，也喜歡探索程式設計領域。
+                我對科技充滿好奇心，常常透過實作與練習來提升自己的能力。這也是我選擇走向程式設計的原因。
+              </p>
+            </div>
+            <div class="card">
+              <p>
+                在學習中，我喜歡理解問題、拆解流程，並透過程式碼去完成各種功能。
+                我相信只要持續學習與實作，就能一步步成長成更成熟的開發者。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="skills">
+        <div class="container">
+          <h2>我的專長</h2>
+          <div class="skills">
+            <div class="skill">
+              <strong>程式設計</strong>
+              <span>能夠撰寫程式解決問題，並理解邏輯與演算法。</span>
+            </div>
+            <div class="skill">
+              <strong>網頁開發</strong>
+              <span>熟悉 HTML、CSS 與前端頁面設計，打造簡潔易用的介面。</span>
+            </div>
+            <div class="skill">
+              <strong>程式學習</strong>
+              <span>持續學習新技術，提升撰寫程式與解題的能力。</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer id="contact">
+      <div class="container">© 2026 成大南工學生 | 專長：程式設計</div>
+    </footer>
+  </body>
+</html>
