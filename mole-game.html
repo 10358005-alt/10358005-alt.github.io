@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>打地鼠遊戲</title>
+    <link rel="stylesheet" href="assets/mole-game.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="topbar">
+        <div class="brand">打地鼠大賽</div>
+        <nav class="nav-links">
+          <a href="index.html">回首頁</a>
+        </nav>
+      </header>
+
+      <main class="game-panel">
+        <div class="game-header">
+          <div class="score-box">
+            <span class="label">分數</span>
+            <strong id="score">0</strong>
+          </div>
+          <div class="score-box timer-box">
+            <span class="label">倒數</span>
+            <strong id="timer">30</strong>
+          </div>
+          <div class="score-box">
+            <span class="label">最佳</span>
+            <strong id="bestScore">0</strong>
+          </div>
+        </div>
+
+        <div id="gameBoard" class="game-board" aria-label="打地鼠遊戲盤面">
+          <button class="hole" type="button" data-index="0" aria-label="第一個洞">
+            <span class="mole"></span>
+          </button>
+          <button class="hole" type="button" data-index="1" aria-label="第二個洞">
+            <span class="mole"></span>
+          </button>
+          <button class="hole" type="button" data-index="2" aria-label="第三個洞">
+            <span class="mole"></span>
+          </button>
+          <button class="hole" type="button" data-index="3" aria-label="第四個洞">
+            <span class="mole"></span>
+          </button>
+          <button class="hole" type="button" data-index="4" aria-label="第五個洞">
+            <span class="mole"></span>
+          </button>
+          <button class="hole" type="button" data-index="5" aria-label="第六個洞">
+            <span class="mole"></span>
+          </button>
+          <button class="hole" type="button" data-index="6" aria-label="第七個洞">
+            <span class="mole"></span>
+          </button>
+          <button class="hole" type="button" data-index="7" aria-label="第八個洞">
+            <span class="mole"></span>
+          </button>
+          <button class="hole" type="button" data-index="8" aria-label="第九個洞">
+            <span class="mole"></span>
+          </button>
+        </div>
+
+        <div class="controls">
+          <button id="startBtn" class="primary-btn" type="button">開始遊戲</button>
+        </div>
+
+        <div id="message" class="message hidden" aria-live="polite">
+          <h2>時間到！</h2>
+          <p>最終分數：<span id="finalScore">0</span></p>
+          <button id="restartBtn" class="primary-btn" type="button">再玩一次</button>
+        </div>
+      </main>
+    </div>
+
+    <script src="assets/mole-game.js"></script>
+  </body>
+</html>
