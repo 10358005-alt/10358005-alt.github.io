@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>工程計算機</title>
+    <style>
+      :root {
+        --bg: #f1f3f5;
+        --case-1: #dfe4e8;
+        --case-2: #b9c2ca;
+        --case-3: #87919b;
+        --screen-bg: #dfe7e4;
+        --screen-border: #8c98a3;
+        --screen-text: #1d2d3a;
+        --key-silver: #edf2f6;
+        --key-silver-2: #dfe7ee;
+        --key-operator: #e8dec2;
+        --key-operator-2: #d4bf9b;
+        --key-accent: #efd8b5;
+        --key-dark: #5a6674;
+        --text: #2e3a45;
+        --shadow: rgba(23, 31, 39, 0.22);
+      }
+
+      * { box-sizing: border-box; }
+
+      html, body {
+        margin: 0;
+        min-height: 100%;
+        height: 100%;
+        font-family: "Segoe UI", "Noto Sans TC", sans-serif;
+        background: linear-gradient(180deg, #eef1f3 0%, #dfe5ea 100%);
+        color: var(--text);
+      }
+
+      body {
+        display: grid;
+        place-items: center;
+        padding: 24px;
+      }
+
+      .calculator {
+        width: min(430px, 92vw);
+        background: linear-gradient(180deg, var(--case-1), var(--case-2));
+        border: 1px solid rgba(95, 106, 116, 0.65);
+        border-radius: 28px;
+        padding: 16px 18px 16px;
+        box-shadow:
+          inset 0 2px 0 rgba(255,255,255,0.5),
+          inset 0 -6px 12px rgba(70,82,92,0.08),
+          0 20px 36px rgba(28, 35, 43, 0.18);
+      }
+
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 4px 8px 0;
+      }
+
+      .brand {
+        font-size: clamp(1.5rem, 2vw, 2rem);
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        color: rgba(20, 27, 33, 0.9);
+      }
+
+      .name-box {
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #1b2731;
+        border: 1px solid rgba(71, 83, 93, 0.25);
+        background: rgba(255,255,255,0.18);
+      }
+
+      .model-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        padding: 5px 10px 0;
+        color: rgba(34, 43, 53, 0.8);
+      }
+
+      .screen-wrap {
+        padding: 10px 10px 6px;
+      }
+
+      .screen {
+        position: relative;
+        height: 150px;
+        border-radius: 18px;
+        background: linear-gradient(180deg, #dfe7e5, #d2dce2);
+        border: 3px solid var(--screen-border);
+        box-shadow: inset 0 0 0 1px rgba(146, 156, 166, 0.6), inset 0 10px 18px rgba(255,255,255,0.12);
+        overflow: hidden;
+      }
+
+      .screen::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(255,255,255,0.18), transparent 35%, rgba(30,43,52,0.04));
+        pointer-events: none;
+      }
+
+      .screen-top {
+        position: absolute;
+        top: 12px;
+        left: 16px;
+        right: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.76rem;
+        font-weight: 700;
+        color: rgba(32, 45, 59, 0.8);
+      }
+
+      .screen-main {
+        position: absolute;
+        inset: 42px 16px 8px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+      }
+
+      .display {
+        width: 100%;
+        text-align: right;
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-family: "Consolas", "SFMono-Regular", monospace;
+        font-size: clamp(2rem, 4vw, 3rem);
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        color: var(--screen-text);
+      }
+
+      .top-mini {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 10px;
+        padding: 2px 10px 0;
+      }
+
+      .mini-btn, .key {
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        color: var(--text);
+        background: linear-gradient(180deg, #edf3f7, #dce6ee);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.75), inset 0 -3px 0 rgba(72,83,91,0.13), 0 4px 0 rgba(144,158,170,0.28);
+        transition: transform 0.08s ease;
+      }
+
+      .mini-btn:active, .key:active {
+        transform: translateY(2px);
+      }
+
+      .mini-btn {
+        min-height: 36px;
+        font-size: 0.68rem;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+      }
+
+      .keypad {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 10px;
+        padding: 10px;
+      }
+
+      .key {
+        min-height: 52px;
+        font-size: 0.82rem;
+        font-weight: 800;
+      }
+
+      .key.silver { background: linear-gradient(180deg, #edf2f7, #dfe9f0); }
+      .key.operator { background: linear-gradient(180deg, var(--key-operator), var(--key-operator-2)); }
+      .key.accent { background: linear-gradient(180deg, #f4e7d3, #d9b98a); }
+      .key.numerical { background: linear-gradient(180deg, #edf1f5, #dce7ee); }
+      .key.equal { background: linear-gradient(180deg, #d2dfe9, #bdcbd9); }
+
+      .key.zero {
+        grid-column: span 2;
+      }
+
+      .key .main {
+        display: block;
+        font-size: 1.08rem;
+      }
+
+      @media (max-width: 480px) {
+        .calculator {
+          width: min(360px, 94vw);
+          padding: 12px 12px 10px;
+        }
+
+        .key {
+          min-height: 48px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="calculator">
+      <div class="header">
+        <div class="brand">CASIO</div>
+        <div class="name-box">張明鈺</div>
+      </div>
+
+      <div class="model-row">
+        <span>fx-991ES PLUS</span>
+        <span>DEG</span>
+      </div>
+
+      <div class="screen-wrap">
+        <div class="screen">
+          <div class="screen-top">
+            <span>Math</span>
+            <span id="angleModeLabel">DEG</span>
+          </div>
+          <div class="screen-main">
+            <div id="display" class="display">0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="top-mini">
+        <button class="mini-btn" type="button" data-action="shift">SHIFT</button>
+        <button class="mini-btn" type="button" data-action="alpha">ALPHA</button>
+        <button class="mini-btn" type="button" data-action="mode">MODE</button>
+        <button class="mini-btn" type="button" data-action="setup">SETUP</button>
+        <button class="mini-btn" type="button" data-action="angle">RAD/DEG</button>
+      </div>
+
+      <div class="keypad">
+        <button class="key silver" type="button" data-action="mc"><span class="main">MC</span></button>
+        <button class="key silver" type="button" data-action="mr"><span class="main">MR</span></button>
+        <button class="key silver" type="button" data-action="mplus"><span class="main">M+</span></button>
+        <button class="key silver" type="button" data-action="mminus"><span class="main">M-</span></button>
+        <button class="key operator" type="button" data-action="clear"><span class="main">AC</span></button>
+
+        <button class="key silver" type="button" data-action="sin"><span class="main">sin</span></button>
+        <button class="key silver" type="button" data-action="cos"><span class="main">cos</span></button>
+        <button class="key silver" type="button" data-action="tan"><span class="main">tan</span></button>
+        <button class="key silver" type="button" data-action="log"><span class="main">log</span></button>
+        <button class="key silver" type="button" data-action="ln"><span class="main">ln</span></button>
+
+        <button class="key silver" type="button" data-action="sqrt"><span class="main">√</span></button>
+        <button class="key silver" type="button" data-action="square"><span class="main">x²</span></button>
+        <button class="key silver" type="button" data-action="pi"><span class="main">π</span></button>
+        <button class="key silver" type="button" data-action="exp"><span class="main">e</span></button>
+        <button class="key operator" type="button" data-action="percent"><span class="main">%</span></button>
+
+        <button class="key silver" type="button" data-action="lparen"><span class="main">(</span></button>
+        <button class="key silver" type="button" data-action="rparen"><span class="main">)</span></button>
+        <button class="key silver" type="button" data-action="pow"><span class="main">xʸ</span></button>
+        <button class="key silver" type="button" data-action="ans"><span class="main">Ans</span></button>
+        <button class="key accent" type="button" data-action="backspace"><span class="main">⌫</span></button>
+
+        <button class="key numerical" type="button" data-value="7"><span class="main">7</span></button>
+        <button class="key numerical" type="button" data-value="8"><span class="main">8</span></button>
+        <button class="key numerical" type="button" data-value="9"><span class="main">9</span></button>
+        <button class="key operator" type="button" data-action="divide"><span class="main">÷</span></button>
+        <button class="key operator" type="button" data-action="multiply"><span class="main">×</span></button>
+
+        <button class="key numerical" type="button" data-value="4"><span class="main">4</span></button>
+        <button class="key numerical" type="button" data-value="5"><span class="main">5</span></button>
+        <button class="key numerical" type="button" data-value="6"><span class="main">6</span></button>
+        <button class="key operator" type="button" data-action="minus"><span class="main">−</span></button>
+        <button class="key operator" type="button" data-action="plus"><span class="main">＋</span></button>
+
+        <button class="key numerical" type="button" data-value="1"><span class="main">1</span></button>
+        <button class="key numerical" type="button" data-value="2"><span class="main">2</span></button>
+        <button class="key numerical" type="button" data-value="3"><span class="main">3</span></button>
+        <button class="key accent" type="button" data-action="negate"><span class="main">±</span></button>
+        <button class="key equal" type="button" data-action="equals"><span class="main">=</span></button>
+
+        <button class="key numerical zero" type="button" data-value="0"><span class="main">0</span></button>
+        <button class="key numerical" type="button" data-value="."><span class="main">.</span></button>
+        <button class="key accent" type="button" data-action="x10"><span class="main">×10ˣ</span></button>
+        <button class="key operator" type="button" data-action="mod"><span class="main">mod</span></button>
+        <button class="key operator" type="button" data-action="reciprocal"><span class="main">1/x</span></button>
+      </div>
+    </div>
+
+    <script>
+      const display = document.getElementById('display');
+      const angleModeLabel = document.getElementById('angleModeLabel');
+
+      const state = {
+        expr: '0',
+        lastResult: 0,
+        memory: 0,
+        angleMode: 'DEG'
+      };
+
+      function formatNumber(value) {
+        if (!Number.isFinite(value)) return 'Error';
+        const abs = Math.abs(value);
+        if (abs >= 1e12 || (abs > 0 && abs < 1e-10)) {
+          return value.toExponential(6).replace(/\.0+e/, 'e').replace(/(\.\d*?)0+e/, '$1e');
+        }
+        return String(Number(value.toFixed(10)));
+      }
+
+      function updateDisplay() {
+        display.textContent = state.expr || '0';
+        angleModeLabel.textContent = state.angleMode;
+      }
+
+      function appendValue(value) {
+        if (state.expr === 'Error') {
+          state.expr = value;
+        } else if (state.expr === '0' && !['.', '+', '-', '×', '÷', '^', '(', ')', 's', 'c', 't', 'l', '√', 'π', 'e'].includes(value)) {
+          state.expr = value;
+        } else {
+          state.expr += value;
+        }
+        updateDisplay();
+      }
+
+      function sanitizeExpression(expr) {
+        return expr
+          .replace(/×/g, '*')
+          .replace(/÷/g, '/')
+          .replace(/π/g, 'PI')
+          .replace(/√/g, 'sqrt')
+          .replace(/Ans/gi, 'ANS')
+          .replace(/sin\(/gi, 'SIN(')
+          .replace(/cos\(/gi, 'COS(')
+          .replace(/tan\(/gi, 'TAN(')
+          .replace(/log\(/gi, 'LOG(')
+          .replace(/ln\(/gi, 'LN(')
+          .replace(/e/g, 'E')
+          .replace(/mod/gi, '%')
+          .replace(/\^/g, '**');
+      }
+
+      function evaluateExpression() {
+        try {
+          const clean = sanitizeExpression(state.expr).replace(/ANS/g, String(state.lastResult));
+
+          const sin = (x) => state.angleMode === 'DEG' ? Math.sin((Number(x) * Math.PI) / 180) : Math.sin(Number(x));
+          const cos = (x) => state.angleMode === 'DEG' ? Math.cos((Number(x) * Math.PI) / 180) : Math.cos(Number(x));
+          const tan = (x) => state.angleMode === 'DEG' ? Math.tan((Number(x) * Math.PI) / 180) : Math.tan(Number(x));
+          const log = (x) => Math.log10(Number(x));
+          const ln = (x) => Math.log(Number(x));
+
+          const result = new Function(
+            'PI', 'E', 'SIN', 'COS', 'TAN', 'LOG', 'LN', 'sqrt', 'return ' + clean
+          )(Math.PI, Math.E, sin, cos, tan, log, ln, Math.sqrt);
+
+          if (!Number.isFinite(result)) throw new Error('invalid');
+
+          state.lastResult = result;
+          state.expr = formatNumber(result);
+          updateDisplay();
+        } catch {
+          state.expr = 'Error';
+          updateDisplay();
+        }
+      }
+
+      function clearAll() {
+        state.expr = '0';
+        updateDisplay();
+      }
+
+      function backspace() {
+        if (state.expr === 'Error') {
+          state.expr = '0';
+        } else if (state.expr.length <= 1) {
+          state.expr = '0';
+        } else {
+          state.expr = state.expr.slice(0, -1);
+        }
+        updateDisplay();
+      }
+
+      function toggleAngleMode() {
+        state.angleMode = state.angleMode === 'DEG' ? 'RAD' : 'DEG';
+        updateDisplay();
+      }
+
+      function insertFunction(name) {
+        if (name === 'sin') appendValue('sin(');
+        if (name === 'cos') appendValue('cos(');
+        if (name === 'tan') appendValue('tan(');
+        if (name === 'log') appendValue('log(');
+        if (name === 'ln') appendValue('ln(');
+        if (name === 'sqrt') appendValue('sqrt(');
+        if (name === 'square') appendValue('^2');
+        if (name === 'pi') appendValue('π');
+        if (name === 'exp') appendValue('e');
+        if (name === 'ans') appendValue('Ans');
+        if (name === 'lparen') appendValue('(');
+        if (name === 'rparen') appendValue(')');
+        if (name === 'pow') appendValue('^');
+        if (name === 'x10') appendValue('×10^');
+        if (name === 'negate') {
+          if (state.expr === '0' || state.expr === 'Error') {
+            state.expr = '-';
+          } else {
+            state.expr = `(-(${state.expr}))`;
+          }
+          updateDisplay();
+        }
+        if (name === 'reciprocal') appendValue('^( -1)');
+        if (name === 'percent') appendValue('%');
+        if (name === 'mod') appendValue('%');
+      }
+
+      function memoryAction(type) {
+        const val = Number(state.expr === 'Error' ? 0 : state.expr);
+        if (type === 'mc') state.memory = 0;
+        if (type === 'mr') {
+          state.expr = state.expr === '0' || state.expr === 'Error' ? String(state.memory) : String(state.expr) + String(state.memory);
+          updateDisplay();
+        }
+        if (type === 'mplus') state.memory += val;
+        if (type === 'mminus') state.memory -= val;
+      }
+
+      document.querySelectorAll('.key, .mini-btn').forEach((button) => {
+        button.addEventListener('click', () => {
+          const action = button.dataset.action;
+          const value = button.dataset.value;
+
+          if (action) {
+            if (action === 'clear') clearAll();
+            else if (action === 'backspace') backspace();
+            else if (action === 'equals') evaluateExpression();
+            else if (action === 'angle') toggleAngleMode();
+            else if (action === 'plus') appendValue('+');
+            else if (action === 'minus') appendValue('-');
+            else if (action === 'multiply') appendValue('×');
+            else if (action === 'divide') appendValue('÷');
+            else if (['mc', 'mr', 'mplus', 'mminus'].includes(action)) memoryAction(action);
+            else insertFunction(action);
+            return;
+          }
+
+          if (value === '.') {
+            if (!state.expr.includes('.')) appendValue('.');
+            return;
+          }
+
+          if (state.expr === '0' && value !== '.') {
+            state.expr = value;
+          } else {
+            state.expr += value;
+          }
+          updateDisplay();
+        });
+      });
+
+      document.addEventListener('keydown', (event) => {
+        const key = event.key;
+        if (/^[0-9]$/.test(key)) {
+          if (state.expr === '0') state.expr = key; else state.expr += key;
+          updateDisplay();
+        }
+        if (key === '.') {
+          if (!state.expr.includes('.')) state.expr += '.';
+          updateDisplay();
+        }
+        if (key === '+') appendValue('+');
+        if (key === '-') appendValue('-');
+        if (key === '*') appendValue('×');
+        if (key === '/') appendValue('÷');
+        if (key === 'Enter' || key === '=') evaluateExpression();
+        if (key === 'Backspace') backspace();
+        if (key.toLowerCase() === 'c') clearAll();
+        if (key.toLowerCase() === 'm') toggleAngleMode();
+      });
+
+      updateDisplay();
+    </script>
+  </body>
+</html>
