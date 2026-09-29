@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f2efe7">
+  <title>英文單字測驗 | Vocabulary Check</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #202c2a;
+      --muted: #68736d;
+      --paper: #f2efe7;
+      --surface: #fffefa;
+      --line: #d9ddd3;
+      --green: #21695a;
+      --green-dark: #174c42;
+      --orange: #d47748;
+      --red: #b74138;
+    }
+    * { box-sizing: border-box; }
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper) radial-gradient(rgba(32, 44, 42, .07) .7px, transparent .7px) 0 0 / 17px 17px;
+      font-family: "Avenir Next", Avenir, "Noto Sans TC", sans-serif;
+      line-height: 1.55;
+    }
+    button { font: inherit; }
+    .shell { width: min(850px, calc(100% - 36px)); margin: auto; padding: 28px 0 90px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 52px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-size: .8rem; font-weight: 800; letter-spacing: .08em; }
+    .mark { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 9px; background: var(--green); color: white; font: 1.1rem Georgia, serif; }
+    .edition { color: var(--muted); font-size: .75rem; }
+    .intro { max-width: 680px; margin: auto auto 32px; }
+    .eyebrow { margin: 0 0 12px; color: var(--green); font-size: .74rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    h1, h2, p { margin-top: 0; }
+    h1 { margin-bottom: 15px; font: 500 clamp(2.7rem, 8vw, 5rem)/1.02 Georgia, "Noto Serif TC", serif; }
+    .intro-copy { max-width: 540px; margin-bottom: 0; color: var(--muted); }
+    .panel { overflow: hidden; border: 1px solid rgba(32, 44, 42, .12); border-radius: 8px; background: var(--surface); box-shadow: 0 18px 55px rgba(31, 48, 42, .09); }
+    .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 22px; border-bottom: 1px solid var(--line); }
+    .status { display: flex; align-items: center; gap: 9px; margin: 0; font-size: .84rem; font-weight: 750; }
+    .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--orange); }
+    .dot.ready { background: var(--green); }
+    .body { padding: clamp(24px, 6vw, 46px); }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); margin: 26px 0 28px; border-block: 1px solid var(--line); }
+    .stat { padding: 16px 12px 16px 0; }
+    .stat + .stat { padding-left: 18px; border-left: 1px solid var(--line); }
+    .stat b { display: block; font: 500 1.65rem/1.2 Georgia, serif; }
+    .stat span { color: var(--muted); font-size: .76rem; }
+    .primary, .secondary { min-height: 48px; padding: 0 20px; border: 0; border-radius: 4px; cursor: pointer; font-weight: 750; }
+    .primary { background: var(--green); color: white; }
+    .primary:hover:not(:disabled) { background: var(--green-dark); }
+    .primary:disabled { cursor: wait; opacity: .55; }
+    .secondary { border: 1px solid var(--line); background: transparent; color: var(--ink); }
+    button:focus-visible, input:focus-visible + span { outline: 3px solid var(--orange); outline-offset: 3px; }
+    #load-message { min-height: 24px; margin: 12px 0 0; color: var(--muted); font-size: .83rem; }
+    .error { color: var(--red) !important; }
+    .exam-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 28px; }
+    .timer { min-width: 100px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 4px; text-align: center; font-variant-numeric: tabular-nums; }
+    .timer span { display: block; color: var(--muted); font-size: .68rem; }
+    .timer strong { font-size: 1.1rem; }
+    .timer.warning { border-color: #e5a18c; color: var(--red); }
+    .progress-copy { margin-bottom: 8px; color: var(--muted); font-size: .82rem; }
+    .progress { height: 5px; overflow: hidden; border-radius: 5px; background: #e9ece4; }
+    .progress div { height: 100%; background: var(--green); transition: width .2s; }
+    .question-label { margin: 28px 0 8px; color: var(--green); font-size: .76rem; font-weight: 800; letter-spacing: .1em; }
+    #word { margin-bottom: 24px; overflow-wrap: anywhere; font: 500 clamp(2rem, 7vw, 3.4rem)/1.12 Georgia, "Noto Serif TC", serif; }
+    #options { display: grid; gap: 10px; }
+    .option { display: flex; min-height: 56px; align-items: center; gap: 13px; padding: 12px 15px; border: 1px solid var(--line); border-radius: 4px; cursor: pointer; }
+    .option:hover { border-color: #8ba99c; background: #f7f8f2; }
+    .option.selected { border-color: var(--green); background: #edf4e9; }
+    .option input { width: 17px; height: 17px; margin: 0; accent-color: var(--green); }
+    .option span { overflow-wrap: anywhere; }
+    .nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 26px; }
+    .nav .primary { margin-left: auto; }
+    .nav .secondary { border: 1px solid var(--line); background: transparent; color: var(--ink); }
+    .map { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 26px; padding-top: 18px; border-top: 1px solid var(--line); }
+    .map button { width: 34px; height: 34px; border: 1px solid var(--line); border-radius: 3px; background: transparent; color: var(--muted); cursor: pointer; font-size: .77rem; }
+    .map button.answered { border-color: #9abcae; color: var(--green-dark); }
+    .map button.current { border-color: var(--green); background: var(--green); color: white; }
+    .score { display: flex; align-items: baseline; gap: 10px; margin: 16px 0 8px; }
+    .score strong { font: 500 clamp(3.5rem, 12vw, 6rem)/1 Georgia, serif; }
+    .score span, #result-note { color: var(--muted); }
+    .review { display: grid; gap: 9px; margin-top: 26px; }
+    .review article { padding: 12px 14px; border-left: 3px solid var(--orange); background: #f7f7f1; }
+    .review article.correct { border-color: var(--green); }
+    .review b { display: block; }
+    .review p { margin: 3px 0 0; color: var(--muted); font-size: .86rem; }
+    footer { position: fixed; right: 20px; bottom: 14px; color: var(--muted); font-size: .78rem; }
+    [hidden] { display: none !important; }
+    @media (max-width: 560px) {
+      .shell { width: calc(100% - 28px); padding-top: 20px; }
+      .topbar { margin-bottom: 38px; }
+      .panel-head { padding: 14px 17px; }
+      .body { padding: 23px 19px; }
+      .stat { padding-right: 8px; }
+      .stat + .stat { padding-left: 10px; }
+      .stat b { font-size: 1.4rem; }
+      .stat span { font-size: .69rem; }
+      footer { right: 13px; bottom: 9px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand"><span class="mark" aria-hidden="true">V</span><span>WORD / WORK</span></div>
+      <span class="edition">ENGLISH VOCABULARY · 01</span>
+    </header>
+    <section class="intro" aria-labelledby="title">
+      <p class="eyebrow">A little practice goes a long way</p>
+      <h1 id="title">Vocabulary<br>Check.</h1>
+      <p class="intro-copy">從題庫抽出 20 個單字，選出正確的中文意思。準備好後開始計時。</p>
+    </section>
+    <section class="panel" aria-label="英文單字測驗">
+      <div class="panel-head"><p class="status"><span id="dot" class="dot" aria-hidden="true"></span><span id="status">題庫連線中</span></p><span class="edition">SHEET 01</span></div>
+      <section id="start" class="body">
+        <h2>準備開始了嗎？</h2>
+        <p class="intro-copy">作答期間可返回修改答案；時間結束時將自動交卷。</p>
+        <div class="stats" aria-label="測驗規則">
+          <div class="stat"><b>20</b><span>選擇題</span></div>
+          <div class="stat"><b>5 分</b><span>每題配分</span></div>
+          <div class="stat"><b>10 分</b><span>作答時間</span></div>
+        </div>
+        <button id="start-button" class="primary" type="button" disabled>載入題庫中…</button>
+        <p id="load-message" role="status" aria-live="polite">正在連接單字試算表…</p>
+      </section>
+      <section id="exam" class="body" hidden>
+        <div class="exam-head"><p class="status">單字意思</p><div id="timer" class="timer" role="timer" aria-live="off"><span>剩餘時間</span><strong id="time">10:00</strong></div></div>
+        <p id="progress-copy" class="progress-copy"></p>
+        <div class="progress" role="progressbar" aria-label="答題進度" aria-valuemin="0" aria-valuemax="20" aria-valuenow="1"><div id="progress-value"></div></div>
+        <p id="question-label" class="question-label"></p>
+        <h2 id="word"></h2>
+        <div id="options" role="radiogroup" aria-labelledby="word"></div>
+        <div class="nav"><button id="previous" class="secondary" type="button">上一題</button><button id="next" class="primary" type="button">下一題</button><button id="submit" class="primary" type="button" hidden>交卷</button></div>
+        <nav id="map" class="map" aria-label="題目導覽"></nav>
+      </section>
+      <section id="result" class="body" hidden>
+        <p class="eyebrow">Test complete</p>
+        <h2 id="result-title">測驗完成</h2>
+        <div class="score"><strong id="score">0</strong><span>/ 100 分</span></div>
+        <p id="result-note"></p>
+        <button id="retry" class="secondary" type="button">再測一次</button>
+        <h3 style="margin: 32px 0 0; font-size: 1rem;">作答檢視</h3>
+        <div id="review" class="review"></div>
+      </section>
+    </section>
+  </main>
+  <footer>設計者 張明鈺</footer>
+  <script>
+    const SHEET_ID = "1QK0YLyOyqu30CQTj4bx0z3xrCFCV6FCXPTNJMHQ4C1M";
+    const QUESTION_COUNT = 20;
+    const POINTS_PER_QUESTION = 5;
+    const DURATION = 10 * 60 * 1000;
+    const $ = (id) => document.getElementById(id);
+    let words = [];
+    let questions = [];
+    let answers = [];
+    let current = 0;
+    let deadline = 0;
+    let clock = null;
+
+    function status(message, ready = false) {
+      $("status").textContent = message;
+      $("dot").classList.toggle("ready", ready);
+    }
+
+    function shuffle(items) {
+      const result = [...items];
+      for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
+      }
+      return result;
+    }
+
+    function fetchSheet() {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        const query = new URLSearchParams({ tqx: "out:json", gid: "0" });
+        let settled = false;
+        const finish = (error, data) => {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timeout);
+          script.remove();
+          error ? reject(error) : resolve(data);
+        };
+        const timeout = setTimeout(() => finish(new Error("試算表連線逾時")), 15000);
+        window.google = window.google || {};
+        window.google.visualization = window.google.visualization || {};
+        window.google.visualization.Query = window.google.visualization.Query || {};
+        window.google.visualization.Query.setResponse = (data) => finish(null, data);
+        script.onerror = () => finish(new Error("無法讀取試算表"));
+        script.onload = () => { if (!settled) finish(new Error("試算表未回傳資料")); };
+        script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?${query}`;
+        document.head.append(script);
+      });
+    }
+
+    function parseWords(table) {
+      const columns = (table.cols || []).map((column) => String(column.label || column.id || "").trim());
+      const rows = (table.rows || []).map((row) => (row.c || []).map((cell) => String(cell?.f ?? cell?.v ?? "").trim()));
+      const headers = (columns.some(Boolean) ? columns : rows[0] || []).map((value) => value.toLowerCase().replace(/[\s_\-]/g, ""));
+      const englishColumn = headers.findIndex((value) => /english|word|vocab|英文|英語|單字|字彙/.test(value));
+      const meaningColumn = headers.findIndex((value) => /chinese|meaning|definition|translation|中文|中譯|解釋|意思|翻譯/.test(value));
+      const sample = columns.some(Boolean) ? rows[0] || [] : rows[1] || rows[0] || [];
+      const present = sample.map((value, index) => value ? index : -1).filter((index) => index >= 0);
+      const wordColumn = englishColumn >= 0 ? englishColumn : present[0] ?? 0;
+      const translationColumn = meaningColumn >= 0 ? meaningColumn : present.find((index) => index !== wordColumn) ?? 1;
+      const dataRows = columns.some(Boolean) || englishColumn >= 0 || meaningColumn >= 0 ? rows.slice(1) : rows;
+      const seen = new Set();
+      return dataRows.map((row) => ({ word: row[wordColumn] || "", meaning: row[translationColumn] || "" })).filter((entry) => {
+        const key = entry.word.toLocaleLowerCase();
+        if (!entry.word || !entry.meaning || seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+    }
+
+    async function loadWords() {
+      const button = $("start-button");
+      const message = $("load-message");
+      button.disabled = true;
+      button.textContent = "載入題庫中…";
+      message.classList.remove("error");
+      message.textContent = "正在連接單字試算表…";
+      status("題庫連線中");
+      try {
+        const response = await fetchSheet();
+        if (response.status !== "ok" || !response.table) throw new Error("試算表資料格式不正確");
+        words = parseWords(response.table);
+        const meanings = new Set(words.map((entry) => entry.meaning));
+        if (words.length < QUESTION_COUNT || meanings.size < 4) {
+          throw new Error(`至少需要 20 個不同單字及 4 種中文意思，目前讀到 ${words.length} 個單字`);
+        }
+        message.textContent = `已載入 ${words.length} 個單字，開始後會隨機抽出 20 題。`;
+        button.disabled = false;
+        button.textContent = "開始測驗";
+        status("題庫已就緒", true);
+      } catch (error) {
+        message.textContent = `${error.message}。請確認試算表已開放檢視權限，且欄位包含英文單字與中文意思。`;
+        message.classList.add("error");
+        button.disabled = false;
+        button.textContent = "重新載入題庫";
+        status("題庫讀取失敗");
+      }
+    }
+
+    function startQuiz() {
+      if (words.length < QUESTION_COUNT) return loadWords();
+      questions = shuffle(words).slice(0, QUESTION_COUNT).map((entry) => {
+        const wrong = shuffle([...new Set(words.map((item) => item.meaning).filter((meaning) => meaning !== entry.meaning))]).slice(0, 3);
+        return { ...entry, choices: shuffle([entry.meaning, ...wrong]) };
+      });
+      answers = Array(QUESTION_COUNT).fill(null);
+      current = 0;
+      $("start").hidden = true;
+      $("result").hidden = true;
+      $("exam").hidden = false;
+      deadline = Date.now() + DURATION;
+      tick();
+      clock = setInterval(tick, 250);
+      renderQuestion();
+      status("測驗進行中", true);
+    }
+
+    function tick() {
+      const remaining = Math.max(0, deadline - Date.now());
+      const seconds = Math.ceil(remaining / 1000);
+      $("time").textContent = `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
+      $("timer").classList.toggle("warning", remaining <= 60000);
+      if (!remaining) finish(true);
+    }
+
+    function renderMap() {
+      const map = $("map");
+      map.replaceChildren();
+      answers.forEach((answer, index) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = String(index + 1);
+        button.className = `${answer !== null ? "answered " : ""}${index === current ? "current" : ""}`;
+        button.setAttribute("aria-label", `前往第 ${index + 1} 題${answer !== null ? "，已作答" : "，未作答"}`);
+        button.addEventListener("click", () => { current = index; renderQuestion(); });
+        map.append(button);
+      });
+    }
+
+    function renderQuestion() {
+      const question = questions[current];
+      $("progress-copy").textContent = `第 ${current + 1} 題，共 20 題`;
+      $("progress-value").style.width = `${(current + 1) * 5}%`;
+      document.querySelector(".progress").setAttribute("aria-valuenow", String(current + 1));
+      $("question-label").textContent = `QUESTION ${String(current + 1).padStart(2, "0")}`;
+      $("word").textContent = question.word;
+      const options = $("options");
+      options.replaceChildren();
+      question.choices.forEach((choice) => {
+        const label = document.createElement("label");
+        label.className = `option${answers[current] === choice ? " selected" : ""}`;
+        const input = document.createElement("input");
+        input.type = "radio";
+        input.name = "answer";
+        input.checked = answers[current] === choice;
+        input.addEventListener("change", () => { answers[current] = choice; renderQuestion(); });
+        const text = document.createElement("span");
+        text.textContent = choice;
+        label.append(input, text);
+        options.append(label);
+      });
+      $("previous").disabled = current === 0;
+      $("next").hidden = current === QUESTION_COUNT - 1;
+      $("submit").hidden = current !== QUESTION_COUNT - 1;
+      renderMap();
+    }
+
+    function finish(timeExpired = false) {
+      if ($("exam").hidden) return;
+      clearInterval(clock);
+      const correct = questions.reduce((count, question, index) => count + (answers[index] === question.meaning ? 1 : 0), 0);
+      $("exam").hidden = true;
+      $("result").hidden = false;
+      $("result-title").textContent = timeExpired ? "時間到，測驗結束" : "測驗完成";
+      $("score").textContent = String(correct * POINTS_PER_QUESTION);
+      $("result-note").textContent = `答對 ${correct} 題，答錯或未作答 ${QUESTION_COUNT - correct} 題。`;
+      const review = $("review");
+      review.replaceChildren();
+      questions.forEach((question, index) => {
+        const isCorrect = answers[index] === question.meaning;
+        const item = document.createElement("article");
+        item.className = isCorrect ? "correct" : "";
+        const word = document.createElement("b");
+        word.textContent = `${String(index + 1).padStart(2, "0")}. ${question.word}`;
+        const detail = document.createElement("p");
+        detail.textContent = isCorrect ? `答對 · ${question.meaning}` : `你的答案：${answers[index] || "未作答"}　正確答案：${question.meaning}`;
+        item.append(word, detail);
+        review.append(item);
+      });
+      status("測驗已完成", true);
+      $("result").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("start-button").addEventListener("click", startQuiz);
+    $("previous").addEventListener("click", () => { if (current > 0) { current--; renderQuestion(); } });
+    $("next").addEventListener("click", () => { if (current < QUESTION_COUNT - 1) { current++; renderQuestion(); } });
+    $("submit").addEventListener("click", () => {
+      const unanswered = answers.filter((answer) => answer === null).length;
+      const message = unanswered ? `還有 ${unanswered} 題未作答，確定交卷？` : "確定交卷？";
+      if (confirm(message)) finish();
+    });
+    $("retry").addEventListener("click", () => { $("result").hidden = true; $("start").hidden = false; startQuiz(); });
+    loadWords();
+  </script>
+</body>
+</html>
