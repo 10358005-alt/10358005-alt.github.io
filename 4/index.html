@@ -209,7 +209,10 @@
       width: 45,
       height: 90,
       speed: 3,
-      score: 0
+      score: 0,
+      crouching: false,
+      standingHeight: 90,
+      crouchingHeight: 60
     };
 
     const keys = {
@@ -218,6 +221,43 @@
       ArrowLeft: false,
       ArrowRight: false
     };
+
+    function updatePose() {
+      const crouching = keys.ArrowDown;
+      const standing = keys.ArrowUp;
+
+      if (crouching) {
+        player.crouching = true;
+        stickman.style.height = `${player.crouchingHeight}px`;
+        stickman.querySelector('.head').style.transform = 'scale(0.9)';
+        stickman.querySelector('.body').style.height = '20px';
+        stickman.querySelector('.body').style.top = '18px';
+        stickman.querySelector('.leg-left').style.top = '38px';
+        stickman.querySelector('.leg-right').style.top = '38px';
+        stickman.querySelector('.arm-left').style.top = '22px';
+        stickman.querySelector('.arm-right').style.top = '22px';
+      } else if (standing) {
+        player.crouching = false;
+        stickman.style.height = `${player.standingHeight}px`;
+        stickman.querySelector('.head').style.transform = 'scale(1)';
+        stickman.querySelector('.body').style.height = '38px';
+        stickman.querySelector('.body').style.top = '24px';
+        stickman.querySelector('.leg-left').style.top = '58px';
+        stickman.querySelector('.leg-right').style.top = '58px';
+        stickman.querySelector('.arm-left').style.top = '32px';
+        stickman.querySelector('.arm-right').style.top = '32px';
+      } else {
+        player.crouching = false;
+        stickman.style.height = `${player.standingHeight}px`;
+        stickman.querySelector('.head').style.transform = 'scale(1)';
+        stickman.querySelector('.body').style.height = '38px';
+        stickman.querySelector('.body').style.top = '24px';
+        stickman.querySelector('.leg-left').style.top = '58px';
+        stickman.querySelector('.leg-right').style.top = '58px';
+        stickman.querySelector('.arm-left').style.top = '32px';
+        stickman.querySelector('.arm-right').style.top = '32px';
+      }
+    }
 
     function updateScore() {
       scoreEl.textContent = player.score;
@@ -278,12 +318,14 @@
         keys[event.key] = true;
         event.preventDefault();
       }
+      updatePose();
     });
 
     document.addEventListener('keyup', (event) => {
       if (event.key in keys) {
         keys[event.key] = false;
       }
+      updatePose();
     });
 
     function loop() {
@@ -292,6 +334,7 @@
     }
 
     updateScore();
+    updatePose();
     requestAnimationFrame(loop);
   </script>
 </body>
