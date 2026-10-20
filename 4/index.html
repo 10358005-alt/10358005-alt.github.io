@@ -120,7 +120,7 @@
       { x: 265, y: 390 }, { x: 690, y: 370 }
     ];
     let stars = [];
-    const player = { x: width / 2, y: height / 2, speed: 230, step: 0 };
+    const player = { x: width / 2, y: height / 2, speed: 230, jumpStart: null };
     let collected = 0;
     let previousTime = 0;
     let finished = false;
@@ -191,29 +191,35 @@
     function drawPlayer(time) {
       const walking = keys.size > 0 && !finished;
       const swing = walking ? Math.sin(time / 75) * 8 : 0;
-      const bob = walking ? Math.abs(Math.sin(time / 75)) * 2 : 0;
+      const crouching = keys.has("ArrowDown") && !finished;
+      const jumpProgress = player.jumpStart === null ? 1 : Math.min((time - player.jumpStart) / 650, 1);
+      if (jumpProgress >= 1) player.jumpStart = null;
+      const jumpHeight = player.jumpStart === null ? 0 : Math.sin(jumpProgress * Math.PI) * 95;
+      const bob = walking && !crouching ? Math.abs(Math.sin(time / 75)) * 2 : 0;
       const x = player.x;
-      const y = player.y - bob;
+      const y = player.y - bob - jumpHeight;
       ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(1, crouching ? 0.62 : 1);
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
       ctx.strokeStyle = "#26342e";
       ctx.fillStyle = "#26342e";
       ctx.lineWidth = 6;
       ctx.beginPath();
-      ctx.arc(x, y - 25, 10, 0, Math.PI * 2);
+      ctx.arc(0, -25, 10, 0, Math.PI * 2);
       ctx.fill();
       ctx.beginPath();
-      ctx.moveTo(x, y - 15);
-      ctx.lineTo(x, y + 15);
-      ctx.moveTo(x, y - 7);
-      ctx.lineTo(x - 13 - swing, y + 3);
-      ctx.moveTo(x, y - 7);
-      ctx.lineTo(x + 13 + swing, y + 3);
-      ctx.moveTo(x, y + 15);
-      ctx.lineTo(x - 10 + swing, y + 31);
-      ctx.moveTo(x, y + 15);
-      ctx.lineTo(x + 10 - swing, y + 31);
+      ctx.moveTo(0, -15);
+      ctx.lineTo(0, 15);
+      ctx.moveTo(0, -7);
+      ctx.lineTo(-13 - swing, 3);
+      ctx.moveTo(0, -7);
+      ctx.lineTo(13 + swing, 3);
+      ctx.moveTo(0, 15);
+      ctx.lineTo(-10 + swing, 31);
+      ctx.moveTo(0, 15);
+      ctx.lineTo(10 - swing, 31);
       ctx.stroke();
       ctx.restore();
     }
@@ -240,14 +246,8 @@
       const delta = previousTime ? Math.min((time - previousTime) / 1000, 0.04) : 0;
       previousTime = time;
       if (!finished) {
-        let dx = Number(keys.has("ArrowRight")) - Number(keys.has("ArrowLeft"));
-        let dy = Number(keys.has("ArrowDown")) - Number(keys.has("ArrowUp"));
-        const length = Math.hypot(dx, dy) || 1;
-        dx /= length;
-        dy /= length;
+        const dx = Number(keys.has("ArrowRight")) - Number(keys.has("ArrowLeft"));
         player.x = Math.max(24, Math.min(width - 24, player.x + dx * player.speed * delta));
-        player.y = Math.max(42, Math.min(height - 34, player.y + dy * player.speed * delta));
-        player.step += delta;
         const target = stars.find((star) => !star.collected && Math.hypot(player.x - star.x, player.y - star.y) < 29);
         if (target) {
           target.collected = true;
@@ -273,6 +273,7 @@
       stars = starPositions.map((star) => ({ ...star, collected: false }));
       player.x = width / 2;
       player.y = height / 2;
+      player.jumpStart = null;
       keys.clear();
       scoreLabel.textContent = "0";
       message.textContent = "按鍵盤方向鍵開始移動火柴人。";
@@ -282,7 +283,11 @@
     window.addEventListener("keydown", (event) => {
       if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) {
         event.preventDefault();
-        keys.add(event.key);
+        if (event.key === "ArrowUp") {
+          if (!event.repeat && !finished && player.jumpStart === null) player.jumpStart = performance.now();
+        } else {
+          keys.add(event.key);
+        }
       }
     });
     window.addEventListener("keyup", (event) => keys.delete(event.key));
@@ -292,7 +297,11 @@
       const direction = `Arrow${button.dataset.dir[0].toUpperCase()}${button.dataset.dir.slice(1)}`;
       button.addEventListener("pointerdown", (event) => {
         event.preventDefault();
-        keys.add(direction);
+        if (direction === "ArrowUp") {
+          if (!finished && player.jumpStart === null) player.jumpStart = performance.now();
+        } else {
+          keys.add(direction);
+        }
         button.setPointerCapture(event.pointerId);
       });
       const stop = () => keys.delete(direction);
