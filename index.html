@@ -256,6 +256,34 @@
         font-size: 0.86rem;
       }
 
+      .detail-label {
+        margin: 16px 0 5px;
+        color: var(--ink);
+        font-size: 0.76rem;
+        font-weight: 750;
+      }
+
+      .instructions {
+        display: grid;
+        gap: 5px;
+        margin: 0;
+        padding: 0;
+        color: var(--muted);
+        font-size: 0.82rem;
+        list-style: none;
+      }
+
+      .instructions li {
+        display: grid;
+        grid-template-columns: 19px 1fr;
+        gap: 5px;
+      }
+
+      .instructions li span {
+        color: var(--accent);
+        font-weight: 750;
+      }
+
       .card-footer {
         margin-top: 20px;
         padding-top: 14px;
@@ -360,7 +388,12 @@
                 <span class="project-type">小遊戲</span>
               </div>
               <h3>打地鼠遊戲</h3>
-              <p>眼明手快，挑戰你的反應速度。</p>
+              <p>在 30 秒內敲中冒出的地鼠，挑戰反應力並累積分數。</p>
+              <p class="detail-label">操作方式</p>
+              <ul class="instructions">
+                <li><span>01</span>點「開始遊戲」開始計時。</li>
+                <li><span>02</span>地鼠冒出時，點擊牠所在的洞得分。</li>
+              </ul>
               <div class="card-footer">
                 <span class="open-link">開始遊玩</span>
                 <span class="arrow" aria-hidden="true">↗</span>
@@ -376,7 +409,12 @@
                 <span class="project-type">工具</span>
               </div>
               <h3>工程計算機</h3>
-              <p>方便計算，讓各種運算一鍵完成。</p>
+              <p>支援基本算術、三角函數、對數與記憶功能的工程計算工具。</p>
+              <p class="detail-label">操作方式</p>
+              <ul class="instructions">
+                <li><span>01</span>點選螢幕上的數字與運算鍵輸入算式。</li>
+                <li><span>02</span>按「＝」或鍵盤 Enter 計算；也可用鍵盤輸入算式。</li>
+              </ul>
               <div class="card-footer">
                 <span class="open-link">開啟工具</span>
                 <span class="arrow" aria-hidden="true">↗</span>
@@ -392,7 +430,12 @@
                 <span class="project-type">學習</span>
               </div>
               <h3>英文單字測驗</h3>
-              <p>用小測驗複習單字，看看自己記得多少。</p>
+              <p>從題庫隨機抽出 20 個英文單字，在 10 分鐘內選出正確中文意思。</p>
+              <p class="detail-label">操作方式</p>
+              <ul class="instructions">
+                <li><span>01</span>題庫載入後，點「開始測驗」進入作答。</li>
+                <li><span>02</span>選擇中文答案，再用上一題／下一題或題號切換題目。</li>
+              </ul>
               <div class="card-footer">
                 <span class="open-link">開始測驗</span>
                 <span class="arrow" aria-hidden="true">↗</span>
@@ -408,7 +451,12 @@
                 <span class="project-type">小遊戲</span>
               </div>
               <h3>小小火柴人冒險</h3>
-              <p>踏上冒險旅程，收集星星並抵達終點。</p>
+              <p>帶領火柴人在草地中探索，收集全部 5 顆星星完成冒險。</p>
+              <p class="detail-label">操作方式</p>
+              <ul class="instructions">
+                <li><span>01</span>使用鍵盤方向鍵移動火柴人。</li>
+                <li><span>02</span>也可使用畫面上的方向按鈕移動；按「重新開始」重玩。</li>
+              </ul>
               <div class="card-footer">
                 <span class="open-link">開始冒險</span>
                 <span class="arrow" aria-hidden="true">↗</span>
