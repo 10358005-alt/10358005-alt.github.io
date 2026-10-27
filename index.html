@@ -258,25 +258,27 @@
         padding: 22px 20px 18px;
       }
 
-      .project-tag {
-        display: inline-block;
-        margin-bottom: 12px;
-        padding: 6px 10px;
-        border-radius: 999px;
-        background: rgba(148, 163, 184, 0.12);
-        color: #dbeafe;
-        font-size: 0.72rem;
-        letter-spacing: 0.06em;
-      }
-
       .project-body h4 {
         margin: 0 0 10px;
         font-size: 1.45rem;
       }
 
-      .project-body p {
-        margin: 0;
+      .project-desc {
+        margin: 0 0 14px;
         color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .project-tips {
+        margin: 0;
+        padding-left: 18px;
+        color: #dfe7f3;
+        font-size: 0.82rem;
+        line-height: 1.8;
+      }
+
+      .project-tips li {
+        margin-bottom: 4px;
       }
 
       .project-link {
@@ -376,10 +378,50 @@
 
     <script>
       const projects = [
-        { title: '打地鼠遊戲', subtitle: '反應速度挑戰與互動遊戲', link: '1/index.html', color: '#38bdf8' },
-        { title: '工程計算機', subtitle: '簡潔實用的計算工具', link: '2/index.html', color: '#34d399' },
-        { title: '英文單字測驗', subtitle: '英語學習與答題練習', link: '3/index.html', color: '#f59e0b' },
-        { title: '小小火柴人冒險', subtitle: '小型動作冒險遊戲', link: '4/index.html', color: '#f472b6' }
+        {
+          title: '打地鼠遊戲',
+          subtitle: '反應速度挑戰與互動遊戲',
+          description: '這是一款簡單的打地鼠遊戲，玩家需在時間內快速點擊出現的地鼠來獲得分數。',
+          tips: [
+            '點擊出現的地鼠即可得分。',
+            '在時間內累積高分，挑戰自己的反應速度。'
+          ],
+          link: '1/index.html',
+          color: '#38bdf8'
+        },
+        {
+          title: '工程計算機',
+          subtitle: '簡潔實用的計算工具',
+          description: '這是一個適合日常使用的工程計算機，支援基本運算與常用工程計算需求。',
+          tips: [
+            '直接點擊數字和運算符號進行計算。',
+            '可利用清除鍵重置輸入內容。'
+          ],
+          link: '2/index.html',
+          color: '#34d399'
+        },
+        {
+          title: '英文單字測驗',
+          subtitle: '英語學習與答題練習',
+          description: '這是一個單字測驗頁面，能幫助使用者練習英文字彙與選擇題作答。',
+          tips: [
+            '先閱讀題目內容後，選出最正確的答案。',
+            '利用下一題按鈕繼續完成整份測驗。'
+          ],
+          link: '3/index.html',
+          color: '#f59e0b'
+        },
+        {
+          title: '小小火柴人冒險',
+          subtitle: '小型動作冒險遊戲',
+          description: '這是一款簡單的動作冒險遊戲，玩家控制角色在場景中移動並完成任務。',
+          tips: [
+            '使用方向鍵或觸控按鈕移動角色。',
+            '收集任務目標並避開障礙，完成冒險挑戰。'
+          ],
+          link: '4/index.html',
+          color: '#f472b6'
+        }
       ];
 
       const projectCount = projects.length;
@@ -401,7 +443,10 @@
           <div class="project-body">
             <span class="project-tag">作品 ${index + 1}</span>
             <h4>${project.title}</h4>
-            <p>${project.subtitle}</p>
+            <p class="project-desc">${project.description}</p>
+            <ul class="project-tips">
+              ${project.tips.map(tip => `<li>${tip}</li>`).join('')}
+            </ul>
             <div class="project-link">點擊進入 →</div>
           </div>
         `;
