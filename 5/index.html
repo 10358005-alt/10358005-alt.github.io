@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stickman Adventure</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: linear-gradient(#0b1020, #111827 55%, #030712);
+      color: #e5e7eb;
+      font-family: Arial, "Microsoft JhengHei", sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .game-wrap {
+      width: min(92vw, 980px);
+      border: 3px solid rgba(148, 163, 184, 0.6);
+      border-radius: 18px;
+      background: rgba(15, 23, 42, 0.9);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+      overflow: hidden;
+    }
+
+    .hud {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 18px;
+      background: rgba(15, 23, 42, 0.9);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.4);
+    }
+
+    .title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    .stats {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      font-size: 0.92rem;
+    }
+
+    .bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .bar-label {
+      color: #cbd5e1;
+      font-weight: 700;
+    }
+
+    .bar-box {
+      width: 115px;
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.2);
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: inherit;
+      transition: width 0.2s ease;
+    }
+
+    #hpFill { background: linear-gradient(90deg, #ef4444, #f87171); }
+    #mpFill { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 620px;
+      background: radial-gradient(circle at center, rgba(15,118,110,0.25), rgba(2,6,23,0.9) 55%);
+      border-top: 1px solid rgba(148, 163, 184, 0.2);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+    }
+
+    .controls {
+      padding: 12px 18px 18px;
+      font-size: 0.95rem;
+      color: #dbeafe;
+      background: rgba(15, 23, 42, 0.8);
+    }
+
+    .controls strong {
+      color: #f8fafc;
+    }
+
+    .controls span {
+      display: inline-block;
+      margin: 0 6px;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: rgba(59,130,246,0.12);
+      border: 1px solid rgba(96,165,250,0.45);
+      color: #bfdbfe;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-wrap">
+    <div class="hud">
+      <div class="title">Stickman Adventure</div>
+      <div class="stats">
+        <div class="bar"><span class="bar-label">HP</span><div class="bar-box"><div id="hpFill" class="bar-fill" style="width:100%"></div></div></div>
+        <div class="bar"><span class="bar-label">MP</span><div class="bar-box"><div id="mpFill" class="bar-fill" style="width:100%"></div></div></div>
+        <div class="bar"><span class="bar-label">分數</span><span id="score">0</span></div>
+      </div>
+    </div>
+    <canvas id="gameCanvas" width="980" height="620"></canvas>
+    <div class="controls">
+      <strong>操作：</strong> 方向鍵移動　<span>Space</span>衝刺　<span>Z</span>火球　<span>X</span>斬擊　<span>C</span>治療
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const hpFill = document.getElementById('hpFill');
+    const mpFill = document.getElementById('mpFill');
+    const scoreText = document.getElementById('score');
+
+    const keys = {};
+    const state = {
+      score: 0,
+      gameOver: false,
+      lastTime: 0,
+      spawnTimer: 0,
+      hitFlash: 0,
+      victoryTimer: 0,
+    };
+
+    const player = {
+      x: 180,
+      y: 300,
+      radius: 18,
+      speed: 220,
+      hp: 100,
+      maxHp: 100,
+      mp: 100,
+      maxMp: 100,
+      facing: 1,
+      attackCooldown: 0,
+      dashCooldown: 0,
+      healCooldown: 0,
+      invulnerable: 0,
+      dx: 0,
+      dy: 0,
+      trail: [],
+    };
+
+    const enemies = [];
+    const projectiles = [];
+    const particles = [];
+
+    function clamp(value, min, max) {
+      return Math.min(Math.max(value, min), max);
+    }
+
+    function randomBetween(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    function spawnEnemy() {
+      const typeRoll = Math.random();
+      const enemy = {
+        x: Math.random() * (canvas.width - 120) + 60,
+        y: Math.random() * (canvas.height - 120) + 60,
+        radius: typeRoll > 0.7 ? 22 : 18,
+        hp: typeRoll > 0.7 ? 55 : 30,
+        maxHp: typeRoll > 0.7 ? 55 : 30,
+        speed: typeRoll > 0.7 ? 90 : 70,
+        color: typeRoll > 0.7 ? '#f97316' : '#ef4444',
+        attackCooldown: randomBetween(0.8, 2.2),
+        rage: 0,
+      };
+
+      if (Math.hypot(enemy.x - player.x, enemy.y - player.y) < 150) {
+        enemy.x = Math.random() * (canvas.width - 100) + 50;
+        enemy.y = Math.random() * (canvas.height - 100) + 50;
+      }
+      enemies.push(enemy);
+    }
+
+    function addParticles(x, y, color, count = 12) {
+      for (let i = 0; i < count; i++) {
+        particles.push({
+          x,
+          y,
+          vx: randomBetween(-120, 120),
+          vy: randomBetween(-120, 120),
+          life: randomBetween(0.4, 0.9),
+          radius: randomBetween(2, 5),
+          color,
+        });
+      }
+    }
+
+    function hitPlayer(damage) {
+      if (player.invulnerable > 0 || state.gameOver) return;
+      player.hp = clamp(player.hp - damage, 0, player.maxHp);
+      player.invulnerable = 0.6;
+      state.hitFlash = 0.2;
+      addParticles(player.x, player.y, '#fca5a5', 18);
+      if (player.hp <= 0) {
+        state.gameOver = true;
+      }
+      updateBars();
+    }
+
+    function updateBars() {
+      hpFill.style.width = (player.hp / player.maxHp * 100) + '%';
+      mpFill.style.width = (player.mp / player.maxMp * 100) + '%';
+      scoreText.textContent = Math.floor(state.score);
+    }
+
+    function createProjectile(x, y, dirX, dirY, damage, color, speed = 420, radius = 7) {
+      projectiles.push({ x, y, dirX, dirY, damage, color, speed, radius, life: 1.5 });
+    }
+
+    function doSlash() {
+      if (player.attackCooldown > 0 || state.gameOver) return;
+      player.attackCooldown = 0.45;
+      const reach = 54;
+      const slashX = player.x + player.facing * reach;
+      const slashY = player.y;
+
+      enemies.forEach(enemy => {
+        const distance = Math.hypot(enemy.x - slashX, enemy.y - slashY);
+        if (distance < 42 + enemy.radius) {
+          enemy.hp -= 18;
+          addParticles(enemy.x, enemy.y, '#fef3c7', 12);
+        }
+      });
+
+      for (let i = enemies.length - 1; i >= 0; i--) {
+        if (enemies[i].hp <= 0) {
+          state.score += 15;
+          addParticles(enemies[i].x, enemies[i].y, '#fbbf24', 18);
+          enemies.splice(i, 1);
+        }
+      }
+      updateBars();
+    }
+
+    function castFireball() {
+      if (player.mp < 18 || state.gameOver) return;
+      player.mp = clamp(player.mp - 18, 0, player.maxMp);
+      const dirX = player.facing;
+      const dirY = 0;
+      createProjectile(player.x + player.facing * 20, player.y - 8, dirX, dirY, 24, '#60a5fa', 520, 8);
+      addParticles(player.x + player.facing * 20, player.y, '#93c5fd', 8);
+      updateBars();
+    }
+
+    function healSelf() {
+      if (player.mp < 25 || player.hp >= player.maxHp || state.gameOver) return;
+      player.mp = clamp(player.mp - 25, 0, player.maxMp);
+      player.hp = clamp(player.hp + 30, 0, player.maxHp);
+      addParticles(player.x, player.y, '#86efac', 20);
+      updateBars();
+    }
+
+    function dashMove() {
+      if (player.dashCooldown > 0 || state.gameOver) return;
+      player.dashCooldown = 1.2;
+      const moveX = (keys.ArrowLeft ? -1 : 0) + (keys.ArrowRight ? 1 : 0);
+      const moveY = (keys.ArrowUp ? -1 : 0) + (keys.ArrowDown ? 1 : 0);
+      const length = Math.hypot(moveX, moveY) || 1;
+      const dashX = (moveX / length) * 120;
+      const dashY = (moveY / length) * 120;
+      player.x = clamp(player.x + dashX, 25, canvas.width - 25);
+      player.y = clamp(player.y + dashY, 25, canvas.height - 25);
+      addParticles(player.x, player.y, '#f9a8d4', 12);
+    }
+
+    document.addEventListener('keydown', (e) => {
+      const key = e.key;
+      keys[key] = true;
+
+      if (key === 'ArrowLeft') player.facing = -1;
+      if (key === 'ArrowRight') player.facing = 1;
+
+      if (key === ' ') {
+        e.preventDefault();
+        dashMove();
+      }
+      if (key === 'z' || key === 'Z') castFireball();
+      if (key === 'x' || key === 'X') doSlash();
+      if (key === 'c' || key === 'C') healSelf();
+    });
+
+    document.addEventListener('keyup', (e) => {
+      keys[e.key] = false;
+    });
+
+    function update(delta) {
+      if (state.gameOver) {
+        state.victoryTimer += delta;
+        return;
+      }
+
+      const moveX = (keys.ArrowLeft ? -1 : 0) + (keys.ArrowRight ? 1 : 0);
+      const moveY = (keys.ArrowUp ? -1 : 0) + (keys.ArrowDown ? 1 : 0);
+      const length = Math.hypot(moveX, moveY);
+
+      if (length > 0) {
+        player.x += (moveX / length) * player.speed * delta;
+        player.y += (moveY / length) * player.speed * delta;
+        player.x = clamp(player.x, 25, canvas.width - 25);
+        player.y = clamp(player.y, 25, canvas.height - 25);
+      }
+
+      if (player.attackCooldown > 0) player.attackCooldown -= delta;
+      if (player.dashCooldown > 0) player.dashCooldown -= delta;
+      if (player.healCooldown > 0) player.healCooldown -= delta;
+      if (player.invulnerable > 0) player.invulnerable -= delta;
+      if (state.hitFlash > 0) state.hitFlash -= delta;
+
+      player.mp = clamp(player.mp + delta * 12, 0, player.maxMp);
+
+      state.spawnTimer -= delta;
+      if (state.spawnTimer <= 0) {
+        spawnEnemy();
+        state.spawnTimer = clamp(1.4 - state.score / 1500, 0.55, 1.4);
+      }
+
+      for (let i = enemies.length - 1; i >= 0; i--) {
+        const enemy = enemies[i];
+        const dx = player.x - enemy.x;
+        const dy = player.y - enemy.y;
+        const dist = Math.hypot(dx, dy) || 1;
+
+        enemy.x += (dx / dist) * enemy.speed * delta;
+        enemy.y += (dy / dist) * enemy.speed * delta;
+
+        if (dist < player.radius + enemy.radius + 10) {
+          enemy.attackCooldown -= delta;
+          if (enemy.attackCooldown <= 0) {
+            hitPlayer(8 + Math.random() * 8);
+            enemy.attackCooldown = randomBetween(1.2, 2.1);
+          }
+        }
+      }
+
+      for (let i = projectiles.length - 1; i >= 0; i--) {
+        const shot = projectiles[i];
+        shot.x += shot.dirX * shot.speed * delta;
+        shot.y += shot.dirY * shot.speed * delta;
+        shot.life -= delta;
+
+        for (let j = enemies.length - 1; j >= 0; j--) {
+          const enemy = enemies[j];
+          if (Math.hypot(shot.x - enemy.x, shot.y - enemy.y) < shot.radius + enemy.radius) {
+            enemy.hp -= shot.damage;
+            addParticles(enemy.x, enemy.y, '#93c5fd', 10);
+            projectiles.splice(i, 1);
+            if (enemy.hp <= 0) {
+              state.score += 20;
+              addParticles(enemy.x, enemy.y, '#fbbf24', 18);
+              enemies.splice(j, 1);
+            }
+            break;
+          }
+        }
+
+        if (shot.life <= 0 || shot.x < -20 || shot.x > canvas.width + 20 || shot.y < -20 || shot.y > canvas.height + 20) {
+          projectiles.splice(i, 1);
+        }
+      }
+
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx * delta;
+        p.y += p.vy * delta;
+        p.life -= delta;
+        if (p.life <= 0) particles.splice(i, 1);
+      }
+
+      if (state.score >= 250) {
+        state.gameOver = true;
+        state.victoryTimer = 0;
+      }
+
+      updateBars();
+    }
+
+    function drawStickman(x, y, scale, color, size = 18) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(scale, scale);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 3;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(0, -30);
+      ctx.lineTo(0, 10);
+      ctx.moveTo(0, -10);
+      ctx.lineTo(-18, 20);
+      ctx.moveTo(0, -10);
+      ctx.lineTo(18, 20);
+      ctx.moveTo(0, 10);
+      ctx.lineTo(-18, 42);
+      ctx.moveTo(0, 10);
+      ctx.lineTo(18, 42);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(0, -42, 14, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawEnemy(enemy) {
+      ctx.save();
+      ctx.translate(enemy.x, enemy.y);
+      ctx.strokeStyle = enemy.color;
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(0, -enemy.radius);
+      ctx.lineTo(0, enemy.radius);
+      ctx.moveTo(-enemy.radius, 0);
+      ctx.lineTo(enemy.radius, 0);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(0, -enemy.radius - 10, enemy.radius * 0.6, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+
+      ctx.fillStyle = 'rgba(255,255,255,0.8)';
+      ctx.fillRect(enemy.x - 18, enemy.y - enemy.radius - 18, 36, 6);
+      ctx.fillStyle = '#22c55e';
+      ctx.fillRect(enemy.x - 18, enemy.y - enemy.radius - 18, 36 * (enemy.hp / enemy.maxHp), 6);
+    }
+
+    function drawProjectiles() {
+      projectiles.forEach(shot => {
+        ctx.beginPath();
+        ctx.fillStyle = shot.color;
+        ctx.arc(shot.x, shot.y, shot.radius, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+
+    function drawParticles() {
+      particles.forEach(p => {
+        ctx.beginPath();
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = clamp(p.life * 1.8, 0, 1);
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+    }
+
+    function drawGround() {
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < 24; i++) {
+        const x = i * 50;
+        const y = (i % 2) * 42;
+        ctx.fillStyle = 'rgba(59,130,246,0.08)';
+        ctx.fillRect(x, y, 40, 40);
+      }
+    }
+
+    function drawHUDText() {
+      ctx.fillStyle = 'rgba(255,255,255,0.8)';
+      ctx.font = 'bold 18px Arial';
+      ctx.fillText('任務：擊敗野怪，達到 250 分', 24, 42);
+      if (state.gameOver) {
+        ctx.fillStyle = 'rgba(255,255,255,0.95)';
+        ctx.font = 'bold 42px Arial';
+        const text = state.score >= 250 ? '勝利！' : '你倒下了！';
+        ctx.fillText(text, canvas.width / 2 - 110, canvas.height / 2);
+        ctx.font = '24px Arial';
+        ctx.fillText('按 F5 重整頁面重新開始', canvas.width / 2 - 170, canvas.height / 2 + 40);
+      }
+    }
+
+    function render() {
+      drawGround();
+
+      if (state.hitFlash > 0) {
+        ctx.fillStyle = `rgba(239,68,68,${state.hitFlash * 0.9})`;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+
+      drawProjectiles();
+
+      enemies.forEach(enemy => drawEnemy(enemy));
+      drawStickman(player.x, player.y, 1, '#f8fafc');
+      drawParticles();
+      drawHUDText();
+    }
+
+    function gameLoop(timestamp) {
+      const delta = Math.min((timestamp - state.lastTime) / 1000, 0.033) || 0.016;
+      state.lastTime = timestamp;
+      update(delta);
+      render();
+      requestAnimationFrame(gameLoop);
+    }
+
+    updateBars();
+    spawnEnemy();
+    spawnEnemy();
+    requestAnimationFrame(gameLoop);
+  </script>
+</body>
+</html>
