@@ -9,15 +9,17 @@
     body {
       margin: 0;
       min-height: 100vh;
-      display: grid;
-      place-items: center;
       background: linear-gradient(135deg, #f6f5f0, #e7ecdf);
       font-family: "Avenir Next", Avenir, "Noto Sans TC", sans-serif;
       color: #20231f;
     }
+    .page {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 48px 0;
+    }
     .card {
-      width: min(90vw, 440px);
-      padding: 38px 28px;
+      padding: 30px 28px;
       border: 1px solid #deddd4;
       border-radius: 18px;
       background: #fffefa;
@@ -25,11 +27,11 @@
       text-align: center;
     }
     h1 {
-      margin: 0 0 12px;
+      margin: 0;
       font: 700 1.45rem Georgia, "Noto Serif TC", serif;
     }
     .count {
-      margin: 20px 0 12px;
+      margin: 12px 0 4px;
       color: #e36d48;
       font: 700 clamp(3.2rem, 12vw, 5.5rem) Georgia, serif;
     }
@@ -38,13 +40,124 @@
       color: #777a72;
       font-size: 0.88rem;
     }
+    .section-heading {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 38px 0 16px;
+    }
+    .section-heading h2 {
+      margin: 0;
+      font-size: 1.15rem;
+    }
+    .section-heading span {
+      color: #777a72;
+      font-size: 0.85rem;
+    }
+    .projects {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .project {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 18px;
+      border: 1px solid #deddd4;
+      border-radius: 12px;
+      background: #fffefa;
+      color: inherit;
+      text-decoration: none;
+      transition: transform 180ms ease, box-shadow 180ms ease;
+    }
+    .project:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 28px rgba(52, 56, 43, 0.1);
+    }
+    .project:focus-visible {
+      outline: 3px solid #e36d48;
+      outline-offset: 3px;
+    }
+    .icon {
+      display: grid;
+      width: 48px;
+      height: 48px;
+      flex: 0 0 auto;
+      place-items: center;
+      border-radius: 12px;
+      background: #f0eee6;
+      font-size: 1.6rem;
+    }
+    .project-number {
+      margin: 0 0 3px;
+      color: #e36d48;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .project h3 {
+      margin: 0;
+      font-size: 1rem;
+    }
+    .back-link {
+      display: inline-block;
+      margin-top: 24px;
+      color: #777a72;
+      font-size: 0.88rem;
+    }
+    @media (max-width: 600px) {
+      .page { padding: 28px 0; }
+      .projects { grid-template-columns: 1fr; }
+      .section-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 4px;
+      }
+    }
   </style>
 </head>
 <body>
-  <main class="card">
-    <h1>累計瀏覽次數</h1>
-    <div class="count" id="count">讀取中</div>
-    <div class="status" id="status">正在連線雲端計數服務...</div>
+  <main class="page">
+    <section class="card" aria-labelledby="counter-title">
+      <h1 id="counter-title">累計瀏覽次數</h1>
+      <div class="count" id="count" aria-live="polite">讀取中</div>
+      <div class="status" id="status">正在連線雲端計數服務...</div>
+    </section>
+
+    <section aria-labelledby="projects-title">
+      <div class="section-heading">
+        <h2 id="projects-title">所有作品</h2>
+        <span>共 6 個作品，點選即可開啟</span>
+      </div>
+      <div class="projects">
+        <a class="project" href="../1/index.html">
+          <span class="icon" aria-hidden="true">🐹</span>
+          <span><p class="project-number">01 · 小遊戲</p><h3>打地鼠遊戲</h3></span>
+        </a>
+        <a class="project" href="../2/index.html">
+          <span class="icon" aria-hidden="true">🧮</span>
+          <span><p class="project-number">02 · 工具</p><h3>工程計算機</h3></span>
+        </a>
+        <a class="project" href="../3/index.html">
+          <span class="icon" aria-hidden="true">📖</span>
+          <span><p class="project-number">03 · 學習</p><h3>英文單字測驗</h3></span>
+        </a>
+        <a class="project" href="../4/index.html">
+          <span class="icon" aria-hidden="true">⭐</span>
+          <span><p class="project-number">04 · 小遊戲</p><h3>小小火柴人冒險</h3></span>
+        </a>
+        <a class="project" href="../5/index.html">
+          <span class="icon" aria-hidden="true">⚔️</span>
+          <span><p class="project-number">05 · 動作遊戲</p><h3>火柴人冒險戰鬥</h3></span>
+        </a>
+        <a class="project" href="index.html" aria-current="page">
+          <span class="icon" aria-hidden="true">◎</span>
+          <span><p class="project-number">06 · 網站工具</p><h3>累計瀏覽計數器</h3></span>
+        </a>
+      </div>
+    </section>
+    <a class="back-link" href="../index.html">← 返回作品集首頁</a>
   </main>
 
   <script>
