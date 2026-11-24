@@ -110,7 +110,7 @@
         color: var(--muted);
       }
 
-      .count {
+      .project-count {
         flex: 0 0 auto;
         display: flex;
         align-items: baseline;
@@ -122,9 +122,47 @@
         font-size: 0.8rem;
       }
 
-      .count strong {
+      .project-count strong {
         color: var(--accent);
         font: 600 1.5rem Georgia, serif;
+      }
+
+      .visitor-counter {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        margin: -36px 0 38px;
+        padding: 15px 18px;
+        border: 1px solid #dcd9ce;
+        border-radius: 12px;
+        background: #fffefa;
+        box-shadow: 0 10px 28px #34382b0b;
+      }
+
+      .visitor-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--muted);
+        font-size: 0.82rem;
+        font-weight: 700;
+      }
+
+      .visitor-label span {
+        display: grid;
+        width: 34px;
+        height: 34px;
+        place-items: center;
+        border-radius: 50%;
+        background: #edf2ee;
+        color: #3f7258;
+      }
+
+      .visitor-number {
+        color: var(--accent);
+        font: 700 1.8rem Georgia, serif;
+        letter-spacing: 0.04em;
       }
 
       .section-heading {
@@ -226,6 +264,11 @@
       .art-adventure {
         color: #547b51;
         background: #f0eddd;
+      }
+
+      .art-counter {
+        color: #7a5a25;
+        background: #eee7d7;
       }
 
       .card-content {
@@ -361,14 +404,22 @@
         <span class="edition">個人作品集</span>
       </header>
 
+      <section class="visitor-counter" aria-label="累計網站瀏覽次數">
+        <div class="visitor-label">
+          <span aria-hidden="true">◎</span>
+          累計瀏覽次數
+        </div>
+        <strong class="visitor-number" id="visitorCount">讀取中</strong>
+      </section>
+
       <section class="intro" aria-labelledby="page-title">
         <div>
           <p class="eyebrow">作品集 · SELECTED PROJECTS</p>
           <h1 id="page-title">我的作品</h1>
           <p class="intro-copy">收集每一次練習與創作。點選作品圖卡，開始探索。</p>
         </div>
-        <div class="count" aria-label="目前共有 4 個作品">
-          <strong>04</strong>
+        <div class="project-count" aria-label="目前共有 6 個作品">
+          <strong>06</strong>
           <span>個作品</span>
         </div>
       </section>
@@ -463,10 +514,71 @@
               </div>
             </div>
           </a>
+
+          <a class="project-card" href="5/index.html">
+            <div class="project-art art-adventure" aria-hidden="true"><span>⚔️</span></div>
+            <div class="card-content">
+              <div class="card-topline">
+                <span class="project-number">05</span>
+                <span class="project-type">動作遊戲</span>
+              </div>
+              <h3>火柴人冒險戰鬥</h3>
+              <p>操控火柴人與敵人戰鬥，使用衝刺、火球、斬擊與治療能力。</p>
+              <p class="detail-label">操作方式</p>
+              <ul class="instructions">
+                <li><span>01</span>使用方向鍵移動，Space 衝刺躲避敵人。</li>
+                <li><span>02</span>使用 Z、X、C 發動攻擊或治療。</li>
+              </ul>
+              <div class="card-footer">
+                <span class="open-link">進入戰鬥</span>
+                <span class="arrow" aria-hidden="true">↗</span>
+              </div>
+            </div>
+          </a>
+
+          <a class="project-card" href="7/index.html">
+            <div class="project-art art-counter" aria-hidden="true"><span>◎</span></div>
+            <div class="card-content">
+              <div class="card-topline">
+                <span class="project-number">06</span>
+                <span class="project-type">網站工具</span>
+              </div>
+              <h3>累計瀏覽計數器</h3>
+              <p>使用雲端計數服務記錄網站累計瀏覽次數，也能在作品頁直接查看。</p>
+              <p class="detail-label">操作方式</p>
+              <ul class="instructions">
+                <li><span>01</span>開啟頁面後自動讀取累計瀏覽數字。</li>
+                <li><span>02</span>每次進站會累加一次瀏覽次數。</li>
+              </ul>
+              <div class="card-footer">
+                <span class="open-link">查看計數器</span>
+                <span class="arrow" aria-hidden="true">↗</span>
+              </div>
+            </div>
+          </a>
         </div>
       </section>
 
       <footer>每個作品，都記錄著一次新的嘗試。</footer>
     </main>
+
+    <script>
+      const scriptUrl = 'https://script.google.com/macros/s/AKfycbx16IqUbEkpByHGv_GxHV5zr_ci2pPoPn3fDia2rYFtckqgIig--76oqTYCHWZltcszng/exec';
+      const visitorCount = document.getElementById('visitorCount');
+
+      async function updateVisitorCount() {
+        try {
+          const response = await fetch(`${scriptUrl}?action=increment`, { cache: 'no-store' });
+          if (!response.ok) throw new Error('Counter request failed');
+          const data = await response.json();
+          visitorCount.textContent = Number(data.count || 0).toLocaleString('zh-TW');
+        } catch (error) {
+          console.error(error);
+          visitorCount.textContent = '暫時無法載入';
+        }
+      }
+
+      updateVisitorCount();
+    </script>
   </body>
 </html>
