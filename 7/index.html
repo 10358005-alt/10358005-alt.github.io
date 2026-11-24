@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>累計瀏覽計數器</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #f6f5f0, #e7ecdf);
+      font-family: "Avenir Next", Avenir, "Noto Sans TC", sans-serif;
+      color: #20231f;
+    }
+    .card {
+      width: min(90vw, 440px);
+      padding: 38px 28px;
+      border: 1px solid #deddd4;
+      border-radius: 18px;
+      background: #fffefa;
+      box-shadow: 0 18px 45px rgba(52, 56, 43, 0.12);
+      text-align: center;
+    }
+    h1 {
+      margin: 0 0 12px;
+      font: 700 1.45rem Georgia, "Noto Serif TC", serif;
+    }
+    .count {
+      margin: 20px 0 12px;
+      color: #e36d48;
+      font: 700 clamp(3.2rem, 12vw, 5.5rem) Georgia, serif;
+    }
+    .status {
+      min-height: 24px;
+      color: #777a72;
+      font-size: 0.88rem;
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>累計瀏覽次數</h1>
+    <div class="count" id="count">讀取中</div>
+    <div class="status" id="status">正在連線雲端計數服務...</div>
+  </main>
+
+  <script>
+    const scriptUrl = 'https://script.google.com/macros/s/AKfycbx16IqUbEkpByHGv_GxHV5zr_ci2pPoPn3fDia2rYFtckqgIig--76oqTYCHWZltcszng/exec';
+    const countEl = document.getElementById('count');
+    const statusEl = document.getElementById('status');
+
+    async function incrementCounter() {
+      try {
+        const response = await fetch(`${scriptUrl}?action=increment`, { cache: 'no-store' });
+        if (!response.ok) throw new Error('Counter request failed');
+        const data = await response.json();
+        countEl.textContent = Number(data.count || 0).toLocaleString('zh-TW');
+        statusEl.textContent = '瀏覽次數已累計';
+      } catch (error) {
+        console.error(error);
+        countEl.textContent = '無法載入';
+        statusEl.textContent = '請確認 Google Apps Script 部署設定';
+      }
+    }
+
+    incrementCounter();
+  </script>
+</body>
+</html>
